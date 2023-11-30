@@ -1,7 +1,28 @@
 const express = require("express");
 const Car = require("../models/car");
 const router = express.Router();
+const multer= require('multer');
+//Nombre directorio
+const upload = multer({dest:'./uploads/'})
+//Renombrar imagen
+const fs = require('node:fs');
 
+
+function saveImage(file){
+  const newPath=`./uploads/${file.originalname}`
+  fs.renameSync(file.path,newPath);
+  return newPath;
+}
+
+
+router.post('/images/single',upload.single('file'),(req,res)=>{
+  console.log(req)
+  let error=false;
+  let message="";
+  console.log(req.file);
+  saveImage(req.file)
+  res.send({error:error});
+});
 
 router.post("/crearcar",async (req, res) => {
   let message = "";
@@ -28,7 +49,7 @@ router.post("/crearcar",async (req, res) => {
 
   router.get("/listarcar",async (req, res) => {
     await Car.find().then((carros) => {
-      console.log(carros);
+    
       if (carros.length > 0) {
         res.json(carros);
       } else {
@@ -39,7 +60,7 @@ router.post("/crearcar",async (req, res) => {
 
   router.get("/listarcar/disponibles",async (req, res) => {
     await Car.find({state:true}).then((carros) => {
-      console.log(carros);
+   
       if (carros.length > 0) {
         res.json(carros);
       } else {
@@ -50,7 +71,7 @@ router.post("/crearcar",async (req, res) => {
 
   router.get("/listarcar/nodisponibles",async (req, res) => {
     await Car.find({state:false}).then((carros) => {
-      console.log(carros);
+    
       if (carros.length > 0) {
         res.json(carros);
       } else {
